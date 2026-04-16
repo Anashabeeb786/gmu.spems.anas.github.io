@@ -1,0 +1,1471 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GMU-Inspired SPEMS (Modern)</title>
+  <style>
+    :root{
+      --maroon:#5a1e1f; /* deep maroon inspired by GMU */
+      --maroon-2:#6f2425;
+      --gold:#e2c165;
+      --cream:#fff5dc;
+      --muted:#5f5858;
+      --glass: rgba(255,255,255,0.06);
+      --card-shadow: 0 8px 24px rgba(11,11,11,0.18);
+      --radius:14px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family: "Times New Roman", Times, serif;
+      line-height:1.45;
+      letter-spacing:.1px;
+      background: linear-gradient(180deg, #fdfaf4 0%, #f8f3ea 100%);
+      color:#222;
+      transition: background .25s ease, color .25s ease;
+      overflow-x:hidden;
+      position:relative;
+    }
+    body::after{
+      content:"";
+      position:fixed;
+      inset:-4%;
+      pointer-events:none;
+      z-index:-2;
+      background:url('assets/theme-bg-light.png') center/cover no-repeat;
+      transform-origin:center;
+      animation:bgImageFloat 24s ease-in-out infinite alternate;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-20%;
+      pointer-events:none;
+      z-index:-1;
+      background:
+        linear-gradient(120deg, rgba(255,250,238,.80), rgba(255,248,231,.58) 38%, rgba(226,193,101,.22)),
+        radial-gradient(circle at 18% 20%, rgba(226,193,101,.20), transparent 38%),
+        radial-gradient(circle at 84% 12%, rgba(90,30,31,.12), transparent 34%),
+        radial-gradient(circle at 70% 82%, rgba(226,193,101,.18), transparent 34%);
+      animation:bgOverlayDrift 16s ease-in-out infinite alternate;
+    }
+    body.dark-mode{
+      background:
+        linear-gradient(180deg, rgba(17,17,17,.88) 0%, rgba(9,9,9,.93) 100%),
+        url('assets/theme-bg.png') center/cover fixed no-repeat;
+      color:#ececec;
+    }
+    @keyframes bgOverlayDrift{
+      from{transform:translate3d(0,0,0) scale(1)}
+      to{transform:translate3d(-2%,1%,0) scale(1.05)}
+    }
+    @keyframes bgImageFloat{
+      0%{transform:scale(1.02) translate3d(0,0,0)}
+      50%{transform:scale(1.08) translate3d(-1.2%, -0.6%, 0)}
+      100%{transform:scale(1.1) translate3d(1%, 0.8%, 0)}
+    }
+
+    /* Top thin info bar */
+    .topbar{
+      background:linear-gradient(90deg, #e7cf82 0%, #e2c165 100%);
+      color:#121212;
+      padding:8px 20px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:13px;
+      font-weight:600;
+      position:sticky;
+      top:0;
+      z-index:60;
+    }
+    .topbar .left{display:flex;gap:16px;align-items:center}
+    .topbar a{color:#121212;text-decoration:none;font-weight:700}
+
+    /* Main header */
+    header.site-header{
+      background: linear-gradient(90deg, rgba(90,30,31,0.96) 0%, rgba(111,36,37,0.96) 100%);
+      padding:22px 28px;
+      color:var(--gold);
+      display:flex;
+      align-items:center;
+      gap:20px;
+      box-shadow: 0 6px 18px rgba(91,35,35,0.18);
+      position:sticky;
+      top:36px;
+      z-index:55;
+      backdrop-filter: blur(6px);
+    }
+    .brand{
+      display:flex;gap:18px;align-items:center;flex:1;
+    }
+    .brand .logo{
+      width:68px;height:68px;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,#7a2b2b,#431616);
+      display:flex;align-items:center;justify-content:center;color:var(--gold);font-weight:700;font-family:'Merriweather';
+      box-shadow: inset 0 -6px 14px rgba(0,0,0,0.25);
+    }
+    .brand .logo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .brand h1{margin:0;font-size:20px;letter-spacing:0.2px;color:#e4c467}
+    .brand p{margin:0;font-size:13px;color:#f2d992}
+
+    nav.main-nav{display:flex;gap:12px;align-items:center}
+    nav.main-nav a{color:#f8ecd0;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:700;position:relative}
+    nav.main-nav a:hover{background:rgba(255,255,255,0.06);color:#fff5d9}
+    nav.main-nav a.active{
+      background:rgba(240,210,122,0.15);
+      color:#fff5d9;
+    }
+    nav.main-nav a::after{
+      content:"";
+      position:absolute;
+      left:14px;
+      bottom:6px;
+      width:0;
+      height:2px;
+      background:#f0d27a;
+      transition:width .25s ease;
+    }
+    nav.main-nav a:hover::after{width:calc(100% - 28px)}
+    .cta{background:#f0d27a;color:#5a1e1f;padding:10px 14px;border-radius:12px;font-weight:800}
+
+    /* Hero */
+    .hero{
+      max-width:1200px;margin:20px auto;padding:18px;border-radius:16px;display:grid;grid-template-columns:1fr 420px;gap:20px;align-items:stretch;position:relative;
+    }
+    .hero .left{
+      background:linear-gradient(180deg, rgba(91,35,35,0.06), rgba(91,35,35,0.03));padding:28px;border-radius:14px;box-shadow:var(--card-shadow);
+    }
+    .hero h2{font-family:'Merriweather';margin:0;color:var(--maroon-2);font-size:28px}
+    .hero p.lead{color:var(--muted);margin-top:10px}
+    .hero .buttons{margin-top:18px}
+    .btn{display:inline-block;padding:10px 16px;border-radius:12px;border:none;cursor:pointer;font-weight:700;font-family:inherit}
+    .btn-primary{background:var(--maroon);color:var(--gold)}
+    .btn-gold{background:var(--gold);color:var(--maroon)}
+    .btn-animated{
+      transition: transform .22s ease, box-shadow .22s ease, filter .22s ease;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+    }
+    .btn-animated:hover{
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.16);
+      filter: brightness(1.03);
+    }
+    .btn-animated:active{transform:translateY(-1px) scale(.99)}
+    .btn-shimmer{
+      position:relative;
+      overflow:hidden;
+    }
+    .btn-shimmer::after{
+      content:"";
+      position:absolute;
+      top:0;
+      left:-120%;
+      width:60%;
+      height:100%;
+      background:linear-gradient(120deg, transparent, rgba(255,255,255,.42), transparent);
+      transition:left .55s ease;
+    }
+    .btn-shimmer:hover::after{left:130%}
+    .btn-glow{animation:btnGlow 2.6s infinite ease-in-out}
+    @keyframes btnGlow{
+      0%,100%{filter:drop-shadow(0 0 0 rgba(230,200,106,.1))}
+      50%{filter:drop-shadow(0 0 9px rgba(230,200,106,.55))}
+    }
+    .pulse{animation:pulse 2.2s infinite}
+    @keyframes pulse{
+      0%{box-shadow:0 0 0 0 rgba(230,200,106,.45)}
+      70%{box-shadow:0 0 0 14px rgba(230,200,106,0)}
+      100%{box-shadow:0 0 0 0 rgba(230,200,106,0)}
+    }
+    .fade-in{animation:fadeIn .5s ease}
+    @keyframes fadeIn{
+      from{opacity:0;transform:translateY(10px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .hero .right{
+      border-radius:14px;overflow:hidden;box-shadow:var(--card-shadow);background:linear-gradient(180deg,#fff,#fff7e6);
+      padding:18px;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center
+    }
+    .hero .right img{max-width:100%;border-radius:8px}
+
+    /* Container with dashboards */
+    .container{max-width:1200px;margin:20px auto;padding:6px}
+    .panels{display:grid;grid-template-columns:1fr 420px;gap:20px}
+
+    .card{
+      background:white;
+      border-radius:12px;
+      padding:18px;
+      box-shadow:var(--card-shadow);
+      border:1px solid rgba(239,220,173,.55);
+      transition:transform .25s ease, box-shadow .25s ease;
+      animation:cardLiftIn .65s ease;
+    }
+    .card:hover{
+      transform:translateY(-4px);
+      box-shadow:0 14px 28px rgba(11,11,11,0.2);
+    }
+    @keyframes cardLiftIn{
+      from{opacity:0;transform:translateY(10px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    .gamification{background:linear-gradient(180deg,#fff8e6,#fff3db);border-radius:10px;padding:12px}
+    body.dark-mode .card{
+      background:#1f1f1f;
+      color:#ececec;
+      box-shadow:0 8px 24px rgba(0,0,0,.35);
+    }
+    body.dark-mode .muted{color:#c5c5c5}
+    body.dark-mode .gamification{background:linear-gradient(180deg,#2a2a2a,#1e1e1e)}
+    body.dark-mode input,
+    body.dark-mode select{
+      background:#2a2a2a;
+      color:#f2f2f2;
+      border:1px solid #3a3a3a !important;
+    }
+    body.dark-mode th, body.dark-mode td{border-bottom:1px solid #333}
+    body.dark-mode .modal .box{background:#1f1f1f;color:#f1f1f1}
+
+    /* Tables */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid #f0f0f0;text-align:left}
+    tbody tr{
+      transition:background .2s ease, transform .2s ease;
+    }
+    tbody tr:hover{
+      background:rgba(230,200,106,0.12);
+      transform:translateX(2px);
+    }
+
+    /* Modal */
+    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(18,18,18,0.45);z-index:50;opacity:0;pointer-events:none;transition:all .18s}
+    .modal.open{opacity:1;pointer-events:auto}
+    .modal .box{background:white;padding:20px;border-radius:12px;min-width:320px}
+    .auth-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .auth-note{font-size:12px;color:var(--muted)}
+
+    /* Footer */
+    footer{max-width:1200px;margin:30px auto;color:#555;text-align:center;padding:18px}
+
+    /* responsive */
+    @media(max-width:920px){
+      .hero{grid-template-columns:1fr;}
+      .panels{grid-template-columns:1fr}
+      nav.main-nav{display:none}
+    }
+
+    /* small utilities */
+    .muted{color:var(--muted)}
+    .flex{display:flex}
+    .gap{gap:12px}
+    .right-align{text-align:right}
+    .pill{
+      display:inline-block;
+      padding:6px 12px;
+      border-radius:999px;
+      border:1px solid #ead7a2;
+      background:#fff9ea;
+      color:var(--maroon-2);
+      font-size:12px;
+      font-weight:700;
+    }
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .floating-top{
+      position:fixed;
+      right:20px;
+      bottom:18px;
+      z-index:20;
+      border:none;
+      border-radius:999px;
+      width:46px;
+      height:46px;
+      font-size:18px;
+      background:var(--maroon);
+      color:var(--gold);
+      cursor:pointer;
+      box-shadow:var(--card-shadow);
+      opacity:0;
+      pointer-events:none;
+      transform:translateY(8px);
+      transition:opacity .25s ease, transform .25s ease;
+    }
+    .floating-top.show{
+      opacity:1;
+      pointer-events:auto;
+      transform:translateY(0);
+    }
+    .floating-top:hover{transform:translateY(-3px)}
+    .reveal{
+      opacity:0;
+      transform:translateY(16px);
+      transition:opacity .55s ease, transform .55s ease;
+    }
+    .reveal.in-view{
+      opacity:1;
+      transform:translateY(0);
+    }
+    .admin-profile{
+      margin: 10px 0 14px 0;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:12px;
+      border-radius:12px;
+      background:linear-gradient(135deg,#fff7e8,#fff1cf);
+      border:1px solid #f0dfb0;
+      animation:adminCardFade .7s ease;
+    }
+    .admin-photo-wrap{
+      width:118px;
+      height:118px;
+      border-radius:50%;
+      padding:4px;
+      background:conic-gradient(from 45deg, #e6c86a, #cda84d, #f5dea1, #e6c86a);
+      animation:adminRingGlow 2.8s ease-in-out infinite;
+      box-shadow:0 0 0 0 rgba(230,200,106,.35);
+    }
+    .admin-photo{
+      width:100%;
+      height:100%;
+      border-radius:50%;
+      object-fit:cover;
+      border:2px solid #fff;
+      animation:adminPhotoFloat 3.2s ease-in-out infinite, adminPhotoPulse 2.6s ease-in-out infinite;
+      transition:transform .25s ease, filter .25s ease;
+    }
+    .admin-profile:hover .admin-photo{
+      transform:scale(1.06);
+      filter:brightness(1.05);
+    }
+    @keyframes adminPhotoFloat{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-5px)}
+    }
+    @keyframes adminRingGlow{
+      0%,100%{box-shadow:0 0 0 rgba(230,200,106,.28)}
+      50%{box-shadow:0 0 18px rgba(230,200,106,.55)}
+    }
+    @keyframes adminPhotoPulse{
+      0%,100%{filter:brightness(1)}
+      50%{filter:brightness(1.08)}
+    }
+    @keyframes adminCardFade{
+      from{opacity:0;transform:translateY(8px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    body.dark-mode .admin-profile{
+      background:linear-gradient(135deg,#2a2a2a,#202020);
+      border:1px solid #383838;
+    }
+    .fees-card{
+      margin-top:12px;
+      border:1px solid #f0dfb0;
+      background:linear-gradient(135deg,#fff8ea,#fff2cf);
+      animation:feesGlow 2.8s ease-in-out infinite;
+    }
+    .fees-card table td:last-child{
+      font-weight:700;
+      color:var(--maroon-2);
+    }
+    @keyframes feesGlow{
+      0%,100%{box-shadow:0 0 0 rgba(230,200,106,.25)}
+      50%{box-shadow:0 0 18px rgba(230,200,106,.32)}
+    }
+    body.dark-mode .fees-card{
+      border:1px solid #3f3f3f;
+      background:linear-gradient(135deg,#292929,#202020);
+    }
+    .records-toolbar{
+      margin:10px 0;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+    .records-toolbar input,
+    .records-toolbar select{
+      padding:9px 10px;
+      border-radius:8px;
+      border:1px solid #e8e8e8;
+      min-width:160px;
+      background:#fff;
+    }
+    .records-toolbar .btn{
+      padding:8px 12px;
+    }
+    .record-action-btn{
+      background:#f7f1de;
+      color:var(--maroon);
+      border:1px solid #edd8a1;
+      border-radius:8px;
+      padding:5px 8px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .record-action-btn:hover{
+      filter:brightness(0.98);
+      transform:translateY(-1px);
+    }
+    body.dark-mode .records-toolbar input,
+    body.dark-mode .records-toolbar select{
+      background:#2a2a2a;
+      border:1px solid #3a3a3a;
+      color:#f2f2f2;
+    }
+    .admission-form{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .admission-form .full{grid-column:1 / -1}
+    .admission-form input,
+    .admission-form select,
+    .admission-form textarea{
+      padding:10px;
+      border-radius:8px;
+      border:1px solid #e8e8e8;
+      font-family:inherit;
+    }
+    .admission-form textarea{
+      min-height:90px;
+      resize:vertical;
+    }
+    body.dark-mode .admission-form input,
+    body.dark-mode .admission-form select,
+    body.dark-mode .admission-form textarea{
+      background:#2a2a2a;
+      border:1px solid #3a3a3a;
+      color:#f2f2f2;
+    }
+    .feature-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .feature-grid .full{grid-column:1 / -1}
+    .feature-grid input,
+    .feature-grid select,
+    .feature-grid textarea{
+      padding:10px;
+      border-radius:8px;
+      border:1px solid #e8e8e8;
+      font-family:inherit;
+    }
+    .chat-box{
+      background:#fff;
+      border:1px solid #eadbb4;
+      border-radius:10px;
+      height:240px;
+      overflow:auto;
+      padding:10px;
+    }
+    .chat-msg{margin:0 0 8px 0;padding:8px 10px;border-radius:8px}
+    .chat-msg.user{background:#f0f7ff}
+    .chat-msg.bot{background:#fff6de}
+    .id-preview{
+      border:1px solid #e4d09a;
+      background:linear-gradient(160deg,#fff8e6,#fff0c9);
+      border-radius:12px;
+      padding:12px;
+    }
+    .id-preview h5{margin:0 0 8px 0}
+    body.dark-mode .feature-grid input,
+    body.dark-mode .feature-grid select,
+    body.dark-mode .feature-grid textarea,
+    body.dark-mode .chat-box{
+      background:#2a2a2a;
+      border:1px solid #3a3a3a;
+      color:#f2f2f2;
+    }
+    body.dark-mode .chat-msg.user{background:#223043}
+    body.dark-mode .chat-msg.bot{background:#3a321f}
+    body.dark-mode .id-preview{
+      background:linear-gradient(160deg,#2c2a23,#23211c);
+      border:1px solid #3f3b2f;
+    }
+    #notifications li{
+      list-style:disc;
+      margin:6px 0;
+      padding:6px 8px;
+      border-radius:8px;
+      background:rgba(240,210,122,0.16);
+      border:1px solid rgba(240,210,122,0.28);
+      animation:noteIn .25s ease;
+    }
+    @keyframes noteIn{
+      from{opacity:0;transform:translateY(6px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="left"><span>📞 18001237099</span><a href="mailto:info@gmu.ac.in">info@gmu.ac.in</a></div>
+    <div class="right muted">
+      KCET Codes: B.Tech - E303 | MCA - C568
+      <button class="btn btn-animated" style="margin-left:8px;padding:6px 10px;background:#fff1be;color:var(--maroon)" onclick="toggleDarkMode()">🌙 Theme</button>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="brand">
+      <div class="logo">
+        <img src="assets/gmu-logo.png" alt="GM University logo">
+      </div>
+      <div>
+        <h1>GM University — SPEMS</h1>
+        <p class="muted">Student Participation & Engagement Management System</p>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <a id="link-student" href="#" onclick="showRole('student')">Student</a>
+      <a id="link-coordinator" href="#" onclick="showRole('coordinator')">Coordinator</a>
+      <a id="link-secretary" href="#" onclick="showRole('secretary')">Secretary</a>
+      <a id="link-admin" href="#" onclick="showRole('admin')">Admin</a>
+      <a href="#future-features">Features</a>
+      <a id="login-btn" class="cta btn-animated pulse btn-shimmer btn-glow" href="#" onclick="openAuthModal(); return false;">Login</a>
+      <a id="logout-btn" class="btn btn-animated" style="display:none;background:#f5df9f;color:var(--maroon)" href="#" onclick="logoutUser(); return false;">Logout</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="left">
+      <h2>Igniting Innovation • Inspiring Transformation</h2>
+      <p class="lead">A modern SPEMS interface inspired by GM University's visual identity — warm maroon tones, gold accents, and calm, accessible layouts. Designed for clarity on desktop and mobile.</p>
+      <div class="buttons">
+        <button class="btn btn-primary btn-animated btn-shimmer" onclick="showRole('student')">Open Student Dashboard</button>
+        <button class="btn btn-gold btn-animated btn-shimmer" onclick="showRole('coordinator')">Create Event</button>
+        <button class="btn btn-animated btn-shimmer" style="background:#fff;border:1px solid #f0e2b8;color:var(--maroon-2)" onclick="document.getElementById('admission-enquiry').scrollIntoView({behavior:'smooth'})">Admission Enquiry</button>
+      </div>
+
+      <div style="margin-top:18px;display:flex;gap:12px;align-items:center">
+        <div style="flex:1" class="card">
+          <strong>Quick Stats</strong>
+          <p class="muted" id="quick-stats">Events: 0 • Participants: 0 • Score Avg: 0</p>
+        </div>
+        <div style="width:120px" class="card right-align">
+          <small class="muted">Theme</small>
+          <div style="font-weight:700;color:var(--maroon-2)">GMU Modern</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right" style="background-image:url('/mnt/data/2d62da7c-b62e-43b3-8b49-f40b60a5e32c.png');background-size:cover;background-position:center">
+      <!-- right side can show campus photo -->
+      <div style="background:linear-gradient(180deg,rgba(255,255,255,0.85),rgba(255,255,255,0.6));width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <h3 style="margin:0;color:var(--maroon-2)">GM University</h3>
+        <p class="muted">A hub for academic prowess and personal growth.</p>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-primary btn-animated" onclick="openAdmissionModal()">Apply Now</button>
+          <button class="btn btn-gold btn-animated" onclick="showCourseDetails()">Fees Payment</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
+    <div class="panels">
+      <div>
+        <!-- Student Role -->
+        <div id="student" class="card role-section active reveal">
+          <h3 style="margin-top:0">Student Dashboard</h3>
+          <div style="margin-bottom:10px" class="fade-in">
+            <span class="pill">Live Dashboard</span>
+            <span class="pill">Smart Suggestions</span>
+            <span class="pill">QR Entry Ready</span>
+          </div>
+          <div class="gamification">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-size:18px;font-weight:800;color:var(--maroon-2)">Engagement Score</div>
+                <div style="font-size:26px;font-weight:900;color:var(--gold)" id="score">0</div>
+              </div>
+              <div style="text-align:right">
+                <div class="muted">Badges</div>
+                <div id="badges">None</div>
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button class="btn btn-primary btn-animated" onclick="logActivity()">Log Participation</button>
+              <button class="btn btn-animated" style="background:#eee;color:#333" onclick="generateAttendanceQR()">Generate Attendance QR</button>
+            </div>
+          </div>
+
+          <div style="margin-top:14px" class="card">
+            <h4 style="margin:0 0 8px 0">AI Insights</h4>
+            <p id="insights-text" class="muted">Based on your history, try volunteering in NSS!</p>
+          </div>
+
+          <div style="margin-top:14px" class="card">
+            <h4 style="margin:0 0 8px 0">Your Activity Records</h4>
+            <div class="records-toolbar">
+              <input id="record-search" placeholder="Search activity..." oninput="updateStudentView()">
+              <select id="record-filter" onchange="updateStudentView()">
+                <option value="all">All Points</option>
+                <option value="high">High (>= 10)</option>
+                <option value="low">Low (&lt; 10)</option>
+              </select>
+              <select id="record-sort" onchange="updateStudentView()">
+                <option value="latest">Latest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="pointsDesc">Points High to Low</option>
+                <option value="pointsAsc">Points Low to High</option>
+              </select>
+              <button class="btn btn-animated" style="background:#eef6ff;color:#173b63" onclick="exportRecordsCSV()">Export CSV</button>
+              <button class="btn btn-animated" style="background:#fce8e8;color:#7b2020" onclick="clearRecords()">Clear Records</button>
+            </div>
+            <table id="student-records">
+              <thead><tr><th>Activity</th><th>Date</th><th>Points</th><th>Options</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div id="admission-enquiry" style="margin-top:14px" class="card fade-in reveal">
+            <h4 style="margin:0 0 8px 0">Admission Enquiry + QR Entry Option</h4>
+            <p class="muted" style="margin-top:0">Fill details and generate QR to share quickly at helpdesk, gate, or admission office.</p>
+            <div class="grid-2">
+              <input id="enq-name" placeholder="Student name" style="padding:10px;border-radius:8px;border:1px solid #eee">
+              <input id="enq-phone" placeholder="Phone number" style="padding:10px;border-radius:8px;border:1px solid #eee">
+              <input id="enq-email" placeholder="Email address" style="padding:10px;border-radius:8px;border:1px solid #eee">
+              <select id="enq-course" style="padding:10px;border-radius:8px;border:1px solid #eee">
+                <option value="">Select course</option>
+                <option>B.Tech CSE</option>
+                <option>B.Tech AIML</option>
+                <option>B.Tech CY</option>
+                <option>BCA</option>
+                <option>MBA</option>
+                <option>MCA</option>
+              </select>
+              <select id="enq-mode" style="padding:10px;border-radius:8px;border:1px solid #eee">
+                <option value="">Entry option</option>
+                <option>Campus Visit</option>
+                <option>Online Counselling</option>
+                <option>Scholarship Desk</option>
+              </select>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:8px">
+              <button class="btn btn-primary btn-animated" onclick="generateEnquiryQR()">Generate Enquiry QR</button>
+              <button class="btn btn-animated" style="background:#f3f3f3;color:#333" onclick="submitEnquiry()">Save Enquiry</button>
+            </div>
+            <div class="card fees-card">
+              <h4 style="margin:0 0 8px 0">Course Fees</h4>
+              <table>
+                <thead><tr><th>Course</th><th>Fees</th></tr></thead>
+                <tbody>
+                  <tr><td>B.Tech CSE</td><td>125000</td></tr>
+                  <tr><td>B.Tech AIML</td><td>200000</td></tr>
+                  <tr><td>B.Tech CY</td><td>120000</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style="margin-top:14px" class="card reveal">
+            <h4 style="margin:0 0 8px 0">Saved Enquiries</h4>
+            <table id="enquiry-table">
+              <thead><tr><th>Name</th><th>Course</th><th>Entry Option</th><th>Time</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Coordinator Role -->
+        <div id="coordinator" class="card role-section" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3 style="margin:0">Coordinator Dashboard</h3>
+            <div><button class="btn btn-gold" onclick="openModal('create-event')">Create Event</button></div>
+          </div>
+
+          <div style="margin-top:12px">
+            <h4 class="muted">Events</h4>
+            <table id="events-table">
+              <thead><tr><th>Event</th><th>Date</th><th>Attendees</th><th>Actions</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Secretary Role -->
+        <div id="secretary" class="card role-section" style="display:none">
+          <h3 style="margin-top:0">Secretary Dashboard</h3>
+          <p class="muted">Generate consolidated reports for accreditation and HOD review.</p>
+          <button class="btn btn-primary" onclick="generateReport()">Generate Participation Report</button>
+          <div id="report-output" style="margin-top:12px"></div>
+        </div>
+
+        <!-- Admin Role -->
+        <div id="admin" class="card role-section" style="display:none">
+          <h3 style="margin-top:0">Admin Dashboard</h3>
+          <div class="admin-profile">
+            <div class="admin-photo-wrap">
+              <img class="admin-photo" src="assets/admin-photo.png" alt="Admin photo of Muhammed Anas">
+            </div>
+            <div>
+              <p style="margin:0 0 6px 0"><strong>Admin Name:</strong> Muhammed Anas</p>
+              <p class="muted" style="margin:0">System Administrator</p>
+            </div>
+          </div>
+          <p class="muted">Tamper-proof logs & audit trail</p>
+          <table id="logs-table"><thead><tr><th>Entry</th><th>Hash</th></tr></thead><tbody></tbody></table>
+          <div style="margin-top:12px"><button class="btn btn-gold" onclick="addLog()">Add Secure Log</button></div>
+        </div>
+      </div>
+
+      <aside>
+        <div class="card reveal">
+          <h4 style="margin-top:0">QR Center (Attendance / Enquiry)</h4>
+          <div id="qr-canvas" style="width:100%;min-height:220px;background:#fff;border-radius:8px;border:1px solid #f0f0f0;display:flex;align-items:center;justify-content:center;color:#888;font-size:13px">Generate QR to display here</div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn btn-primary btn-animated" onclick="generateAttendanceQR()">Attendance QR</button>
+            <button class="btn btn-gold btn-animated" onclick="generateEnquiryQR()">Enquiry QR</button>
+            <button class="btn btn-animated" style="background:#f3f3f3;color:#333" onclick="clearQR()">Clear</button>
+          </div>
+          <div style="margin-top:8px">
+            <button class="btn btn-animated" style="width:100%;background:#eef6ff;color:#173b63" onclick="downloadQR()">Download QR Image</button>
+          </div>
+        </div>
+
+        <div class="card reveal" style="margin-top:12px">
+          <h4 style="margin:0">Notifications</h4>
+          <ul id="notifications" style="margin:8px 0 0 14px;color:var(--muted)"></ul>
+        </div>
+
+        <div class="card reveal" style="margin-top:12px">
+          <h4 style="margin:0">Campus Quick Links</h4>
+          <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+            <a class="btn btn-animated" style="background:#fff;border:1px solid #eee;color:var(--maroon);text-align:left" href="#" onclick="openQuickLink('library'); return false;">Library</a>
+            <a class="btn btn-animated" style="background:#fff;border:1px solid #eee;color:var(--maroon);text-align:left" href="#" onclick="openQuickLink('placements'); return false;">Placements</a>
+            <a class="btn btn-animated" style="background:#fff;border:1px solid #eee;color:var(--maroon);text-align:left" href="#" onclick="openQuickLink('ideaLab'); return false;">IDEA Lab</a>
+            <a class="btn btn-animated" style="background:#fff;border:1px solid #eee;color:var(--maroon);text-align:left" href="#" onclick="openQuickLink('scholarship'); return false;">Scholarship Portal</a>
+            <a class="btn btn-animated" style="background:#fff;border:1px solid #eee;color:var(--maroon);text-align:left" href="#" onclick="openQuickLink('hostel'); return false;">Hostel Booking</a>
+          </div>
+        </div>
+
+        <div id="future-features" class="card reveal" style="margin-top:12px">
+          <h4 style="margin:0">More Future Options</h4>
+          <ul style="margin:10px 0 0 14px;color:var(--muted);display:flex;flex-direction:column;gap:8px">
+            <li><a href="#" onclick="openFutureOption('chatbot'); return false;">AI chatbot for admission and fee support</a></li>
+            <li><a href="#" onclick="openFutureOption('digitalId'); return false;">Digital ID card + gate pass verification</a></li>
+            <li><a href="#" onclick="openFutureOption('parentNotify'); return false;">Parent notification with attendance alerts</a></li>
+            <li><a href="#" onclick="openFutureOption('internship'); return false;">Internship and placement tracker</a></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div id="modal" class="modal">
+    <div class="box">
+      <h4 id="modal-title">Create Event</h4>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+        <input id="event-name" placeholder="Event name" style="padding:10px;border-radius:8px;border:1px solid #eee">
+        <input id="event-date" type="date" style="padding:10px;border-radius:8px;border:1px solid #eee">
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-primary" onclick="createEvent()">Create</button>
+          <button class="btn" style="background:#eee;color:#333" onclick="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="modal">
+    <div class="box">
+      <h4 style="margin:0">Login / Register</h4>
+      <p class="auth-note" style="margin:6px 0 10px 0">Connected to backend API + SQLite authentication.</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <input id="auth-name" placeholder="Full name (for register)" style="padding:10px;border-radius:8px;border:1px solid #eee">
+        <input id="auth-email" placeholder="Email" style="padding:10px;border-radius:8px;border:1px solid #eee">
+        <input id="auth-password" type="password" placeholder="Password (min 6 chars)" style="padding:10px;border-radius:8px;border:1px solid #eee">
+        <div class="auth-grid">
+          <button class="btn btn-gold btn-animated btn-shimmer" onclick="registerUser()">Register</button>
+          <button class="btn btn-primary btn-animated btn-shimmer" onclick="loginUser()">Login</button>
+        </div>
+        <button class="btn btn-animated" style="background:#eee;color:#333" onclick="closeAuthModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admission Modal -->
+  <div id="admission-modal" class="modal">
+    <div class="box" style="max-width:720px;width:min(92vw,720px)">
+      <h4 style="margin:0">Apply for Admission</h4>
+      <p class="auth-note" style="margin:6px 0 10px 0">Enter your details and choose your course.</p>
+      <div class="admission-form">
+        <input id="apply-name" placeholder="Full name">
+        <input id="apply-phone" placeholder="Phone number">
+        <input id="apply-email" placeholder="Email address">
+        <select id="apply-course" onchange="syncApplyFee()">
+          <option value="">Select course</option>
+          <option value="B.Tech CSE">B.Tech CSE</option>
+          <option value="B.Tech AIML">B.Tech AIML</option>
+          <option value="B.Tech CY">B.Tech CY</option>
+          <option value="BCA">BCA</option>
+          <option value="MBA">MBA</option>
+          <option value="MCA">MCA</option>
+        </select>
+        <select id="apply-mode">
+          <option value="">Preferred counselling mode</option>
+          <option>Campus Visit</option>
+          <option>Online Counselling</option>
+          <option>Scholarship Desk</option>
+        </select>
+        <input id="apply-fee" placeholder="Course fee" readonly>
+        <textarea id="apply-note" class="full" placeholder="Optional note: scholarship, hostel, transport, etc."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button class="btn btn-primary btn-animated" onclick="submitAdmissionApplication()">Submit Application</button>
+        <button class="btn btn-animated" style="background:#eee;color:#333" onclick="closeAdmissionModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="chatbot-modal" class="modal">
+    <div class="box" style="max-width:760px;width:min(94vw,760px)">
+      <h4 style="margin:0">AI Chatbot Support</h4>
+      <p class="auth-note" style="margin:6px 0 10px 0">Ask about admission, fees, eligibility, and process.</p>
+      <div id="chatbot-messages" class="chat-box"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <input id="chatbot-input" placeholder="Type your question..." style="flex:1;padding:10px;border-radius:8px;border:1px solid #e8e8e8">
+        <button class="btn btn-primary" onclick="sendChatbotMessage()">Send</button>
+        <button class="btn" style="background:#eee;color:#333" onclick="closeFeatureModal('chatbot-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="digital-id-modal" class="modal">
+    <div class="box" style="max-width:780px;width:min(94vw,780px)">
+      <h4 style="margin:0">Digital ID + Gate Pass</h4>
+      <div class="feature-grid">
+        <input id="id-student-name" placeholder="Student name">
+        <input id="id-student-roll" placeholder="Roll number">
+        <input id="id-department" placeholder="Department">
+        <input id="id-valid-date" type="date">
+        <input id="id-photo-url" class="full" placeholder="Photo URL (optional)">
+        <button class="btn btn-primary" onclick="generateDigitalId()">Generate ID Card</button>
+        <button class="btn btn-gold" onclick="generateGatePass()">Generate Gate Pass QR</button>
+      </div>
+      <div id="id-preview" class="id-preview" style="margin-top:10px;display:none"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:10px">
+        <button class="btn" style="background:#eee;color:#333" onclick="closeFeatureModal('digital-id-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="parent-notify-modal" class="modal">
+    <div class="box" style="max-width:760px;width:min(94vw,760px)">
+      <h4 style="margin:0">Parent Notification Settings</h4>
+      <div class="feature-grid">
+        <input id="parent-name" placeholder="Parent name">
+        <input id="parent-student" placeholder="Student name">
+        <input id="parent-phone" placeholder="Parent mobile number">
+        <input id="parent-email" placeholder="Parent email">
+        <select id="notify-channel">
+          <option value="">Notification channel</option>
+          <option>SMS</option>
+          <option>Email</option>
+          <option>SMS + Email</option>
+        </select>
+        <select id="notify-frequency">
+          <option value="">Alert frequency</option>
+          <option>Daily</option>
+          <option>Weekly</option>
+          <option>Only Low Attendance</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+        <button class="btn btn-primary" onclick="saveParentNotification()">Save Settings</button>
+        <button class="btn" style="background:#eee;color:#333" onclick="closeFeatureModal('parent-notify-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="internship-modal" class="modal">
+    <div class="box" style="max-width:820px;width:min(95vw,820px)">
+      <h4 style="margin:0">Internship & Placement Tracker</h4>
+      <div class="feature-grid">
+        <input id="intern-company" placeholder="Company name">
+        <input id="intern-role" placeholder="Role / Position">
+        <input id="intern-student" placeholder="Student name">
+        <select id="intern-status">
+          <option value="">Status</option>
+          <option>Applied</option>
+          <option>Interview Scheduled</option>
+          <option>Selected</option>
+          <option>Rejected</option>
+        </select>
+        <button class="btn btn-primary" onclick="addInternshipEntry()">Add Entry</button>
+      </div>
+      <table style="margin-top:10px">
+        <thead><tr><th>Company</th><th>Role</th><th>Student</th><th>Status</th></tr></thead>
+        <tbody id="internship-table-body"></tbody>
+      </table>
+      <div style="display:flex;justify-content:flex-end;margin-top:10px">
+        <button class="btn" style="background:#eee;color:#333" onclick="closeFeatureModal('internship-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © GM University — SPEMS • Designed with GMU-inspired palette. Built for learning, tracking, and engagement.
+  </footer>
+  <button class="floating-top btn-animated" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <!-- QR library (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    // state
+    let score = 0; let badges = []; let records = []; let events = []; let logs = [];
+    let enquiries = [];
+    let parentNotifications = [];
+    let internshipEntries = [];
+    let chatbotMessages = [];
+    let qrInstance = null;
+    let currentUser = null;
+    const API_BASE = "http://localhost:3000/api";
+    const STORAGE_KEYS = {
+      chatbot: 'spems_chatbot_messages',
+      parent: 'spems_parent_notifications',
+      internship: 'spems_internship_entries'
+    };
+    const courseFeeMap = {
+      "B.Tech CSE": "125000",
+      "B.Tech AIML": "200000",
+      "B.Tech CY": "120000",
+      "BCA": "90000",
+      "MBA": "150000",
+      "MCA": "130000"
+    };
+
+    function showRole(role){
+      document.querySelectorAll('.role-section').forEach(s=>s.style.display='none');
+      const el = document.getElementById(role);
+      if(el) el.style.display='block';
+      document.querySelectorAll('nav.main-nav a[id^="link-"]').forEach(a=>a.classList.remove('active'));
+      const activeLink = document.getElementById(`link-${role}`);
+      if(activeLink) activeLink.classList.add('active');
+    }
+
+    function logActivity(){
+      const activity = prompt('Enter activity (e.g., Volunteering)');
+      if(!activity) return;
+      score += 10;
+      records.push({activity, date:new Date().toLocaleDateString(), points:10, createdAt: Date.now()});
+      if(score >= 50 && !badges.includes('Engagement Star')) badges.push('Engagement Star');
+      updateStudentView();
+      notify(`Activity logged: ${activity}`);
+    }
+
+    function updateStudentView(){
+      document.getElementById('score').textContent = score;
+      document.getElementById('badges').textContent = badges.length? badges.join(', '): 'None';
+      const tbody = document.querySelector('#student-records tbody');
+      const query = (document.getElementById('record-search')?.value || '').trim().toLowerCase();
+      const filter = (document.getElementById('record-filter')?.value || 'all');
+      const sortBy = (document.getElementById('record-sort')?.value || 'latest');
+
+      let displayRecords = records
+        .map((record, index)=>({record, index}))
+        .filter(({record})=> !query || record.activity.toLowerCase().includes(query))
+        .filter(({record})=>{
+          if(filter === 'high') return record.points >= 10;
+          if(filter === 'low') return record.points < 10;
+          return true;
+        });
+
+      if(sortBy === 'oldest') displayRecords.sort((a,b)=>(a.record.createdAt || 0) - (b.record.createdAt || 0));
+      if(sortBy === 'latest') displayRecords.sort((a,b)=>(b.record.createdAt || 0) - (a.record.createdAt || 0));
+      if(sortBy === 'pointsAsc') displayRecords.sort((a,b)=>a.record.points - b.record.points);
+      if(sortBy === 'pointsDesc') displayRecords.sort((a,b)=>b.record.points - a.record.points);
+
+      tbody.innerHTML = displayRecords.map(({record,index})=>`<tr><td>${record.activity}</td><td>${record.date}</td><td>${record.points}</td><td><button class="record-action-btn" onclick="deleteRecord(${index})">Delete</button></td></tr>`).join('');
+      document.getElementById('quick-stats').textContent = `Events: ${events.length} • Participants: ${events.reduce((s,e)=>s+e.attendees,0)} • Score Avg: ${records.length? Math.round(score/records.length):0}`;
+    }
+    function deleteRecord(i){
+      if(i < 0 || i >= records.length) return;
+      const removed = records[i];
+      records.splice(i,1);
+      score = Math.max(0, records.reduce((sum,r)=>sum + Number(r.points || 0), 0));
+      if(score < 50) badges = badges.filter(b=>b !== 'Engagement Star');
+      updateStudentView();
+      notify(`Record removed: ${removed.activity}`);
+    }
+    function clearRecords(){
+      if(!records.length){ alert('No records to clear'); return; }
+      if(!confirm('Clear all student records?')) return;
+      records = [];
+      score = 0;
+      badges = [];
+      updateStudentView();
+      notify('All student records cleared');
+    }
+    function exportRecordsCSV(){
+      if(!records.length){ alert('No records to export'); return; }
+      const rows = [['Activity','Date','Points'], ...records.map(r=>[r.activity, r.date, r.points])];
+      const csv = rows.map(cols=>cols.map(col=>`"${String(col).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `student-records-${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      notify('Student records exported');
+    }
+    function openQuickLink(type){
+      const actions = {
+        library: {msg:'Opening Library catalogue', run:()=>window.open('https://ndl.iitkgp.ac.in/', '_blank')},
+        placements: {msg:'Opening Placements resources', run:()=>window.open('https://www.naukri.com/campus-hiring', '_blank')},
+        ideaLab: {msg:'IDEA Lab options available soon', run:()=>alert('IDEA Lab: Prototype lab booking and mentor slots will open soon.')},
+        scholarship: {msg:'Opening Scholarship portal', run:()=>window.open('https://scholarships.gov.in/', '_blank')},
+        hostel: {msg:'Hostel booking options available soon', run:()=>alert('Hostel Booking: Room preferences and booking forms will open soon.')}
+      };
+      const selected = actions[type];
+      if(!selected) return;
+      selected.run();
+      notify(selected.msg);
+    }
+    function openFutureOption(type){
+      const modalMap = {
+        chatbot: 'chatbot-modal',
+        digitalId: 'digital-id-modal',
+        parentNotify: 'parent-notify-modal',
+        internship: 'internship-modal'
+      };
+      const modalId = modalMap[type];
+      if(!modalId) return;
+      document.getElementById(modalId).classList.add('open');
+      if(type === 'chatbot') seedChatbot();
+      if(type === 'internship') renderInternshipTable();
+      notify('Feature opened successfully');
+    }
+    function saveFeatureState(){
+      localStorage.setItem(STORAGE_KEYS.chatbot, JSON.stringify(chatbotMessages));
+      localStorage.setItem(STORAGE_KEYS.parent, JSON.stringify(parentNotifications));
+      localStorage.setItem(STORAGE_KEYS.internship, JSON.stringify(internshipEntries));
+    }
+    function hydrateFeatureState(){
+      try{
+        const chatSaved = JSON.parse(localStorage.getItem(STORAGE_KEYS.chatbot) || '[]');
+        const parentSaved = JSON.parse(localStorage.getItem(STORAGE_KEYS.parent) || '[]');
+        const internshipSaved = JSON.parse(localStorage.getItem(STORAGE_KEYS.internship) || '[]');
+        chatbotMessages = Array.isArray(chatSaved) ? chatSaved : [];
+        parentNotifications = Array.isArray(parentSaved) ? parentSaved : [];
+        internshipEntries = Array.isArray(internshipSaved) ? internshipSaved : [];
+      }catch(e){
+        chatbotMessages = [];
+        parentNotifications = [];
+        internshipEntries = [];
+      }
+      renderChatbotMessages();
+      renderInternshipTable();
+    }
+    function renderChatbotMessages(){
+      const box = document.getElementById('chatbot-messages');
+      if(!box) return;
+      if(!chatbotMessages.length){
+        box.innerHTML = `<p class="chat-msg bot">Hello! Ask me about eligibility, fees, documents, or admission dates.</p>`;
+        box.dataset.seeded = '1';
+        return;
+      }
+      box.innerHTML = chatbotMessages.map(m=>`<p class="chat-msg ${m.role}">${m.text}</p>`).join('');
+      box.dataset.seeded = '1';
+      box.scrollTop = box.scrollHeight;
+    }
+    function closeFeatureModal(id){
+      const modal = document.getElementById(id);
+      if(modal) modal.classList.remove('open');
+    }
+    function seedChatbot(){
+      const box = document.getElementById('chatbot-messages');
+      if(!box) return;
+      if(!chatbotMessages.length){
+        chatbotMessages = [{role:'bot', text:'Hello! Ask me about eligibility, fees, documents, or admission dates.'}];
+        saveFeatureState();
+      }
+      renderChatbotMessages();
+    }
+    function sendChatbotMessage(){
+      const input = document.getElementById('chatbot-input');
+      const text = input.value.trim();
+      if(!text) return;
+      chatbotMessages.push({role:'user', text});
+      const lower = text.toLowerCase();
+      let reply = 'Thanks! Admission cell will contact you soon.';
+      if(lower.includes('fee')) reply = 'Fee details: CSE 125000, AIML 200000, CY 120000. Scholarships available.';
+      if(lower.includes('document')) reply = 'Required documents: 10th, 12th marks cards, ID proof, and passport photo.';
+      if(lower.includes('eligibility')) reply = 'Eligibility: Pass in qualifying exam with required cutoff. Contact office for exact criteria.';
+      chatbotMessages.push({role:'bot', text:reply});
+      saveFeatureState();
+      renderChatbotMessages();
+      input.value = '';
+    }
+    function generateDigitalId(){
+      const name = document.getElementById('id-student-name').value.trim();
+      const roll = document.getElementById('id-student-roll').value.trim();
+      const dept = document.getElementById('id-department').value.trim();
+      const valid = document.getElementById('id-valid-date').value;
+      const photoUrl = document.getElementById('id-photo-url').value.trim();
+      if(!name || !roll || !dept || !valid){ alert('Fill all required ID fields'); return; }
+      const preview = document.getElementById('id-preview');
+      preview.style.display = 'block';
+      preview.innerHTML = `<h5>GM University Digital ID</h5>
+        <p style="margin:4px 0"><strong>Name:</strong> ${name}</p>
+        <p style="margin:4px 0"><strong>Roll:</strong> ${roll}</p>
+        <p style="margin:4px 0"><strong>Department:</strong> ${dept}</p>
+        <p style="margin:4px 0"><strong>Valid Till:</strong> ${valid}</p>
+        ${photoUrl ? `<img src="${photoUrl}" alt="Student photo" style="margin-top:8px;width:76px;height:76px;border-radius:8px;object-fit:cover">` : ''}`;
+      notify('Digital ID generated');
+    }
+    function generateGatePass(){
+      const roll = document.getElementById('id-student-roll').value.trim();
+      if(!roll){ alert('Enter roll number first'); return; }
+      renderQR(`GMU.GATEPASS|Roll:${roll}|Time:${new Date().toISOString()}`);
+      notify('Gate pass QR generated in QR center');
+    }
+    function saveParentNotification(){
+      const parent = document.getElementById('parent-name').value.trim();
+      const student = document.getElementById('parent-student').value.trim();
+      const phone = document.getElementById('parent-phone').value.trim();
+      const email = document.getElementById('parent-email').value.trim();
+      const channel = document.getElementById('notify-channel').value;
+      const frequency = document.getElementById('notify-frequency').value;
+      if(!parent || !student || !phone || !email || !channel || !frequency){
+        alert('Please fill all parent notification fields');
+        return;
+      }
+      if(!isValidPhone(phone)){ alert('Enter valid 10-digit phone number'); return; }
+      if(!isValidEmail(email)){ alert('Enter valid email address'); return; }
+      parentNotifications.push({parent, student, phone, email, channel, frequency});
+      saveFeatureState();
+      closeFeatureModal('parent-notify-modal');
+      notify(`Parent alerts enabled for ${student}`);
+      alert('Parent notification settings saved successfully.');
+    }
+    function addInternshipEntry(){
+      const company = document.getElementById('intern-company').value.trim();
+      const role = document.getElementById('intern-role').value.trim();
+      const student = document.getElementById('intern-student').value.trim();
+      const status = document.getElementById('intern-status').value;
+      if(!company || !role || !student || !status){
+        alert('Please fill all internship tracker fields');
+        return;
+      }
+      internshipEntries.push({company, role, student, status});
+      saveFeatureState();
+      renderInternshipTable();
+      ['intern-company','intern-role','intern-student','intern-status'].forEach(id=>document.getElementById(id).value='');
+      notify(`Internship entry added for ${student}`);
+    }
+    function renderInternshipTable(){
+      const tbody = document.getElementById('internship-table-body');
+      if(!tbody) return;
+      tbody.innerHTML = internshipEntries.map(item=>`<tr><td>${item.company}</td><td>${item.role}</td><td>${item.student}</td><td>${item.status}</td></tr>`).join('');
+    }
+
+    function renderQR(text){
+      const qrWrap = document.getElementById('qr-canvas');
+      qrWrap.innerHTML = '';
+      qrWrap.style.color = 'transparent';
+      qrInstance = new QRCode(qrWrap, {text, width:210, height:210});
+    }
+    function generateAttendanceQR(){
+      renderQR('GMU.EVENT.ATTENDANCE|' + new Date().toISOString());
+      notify('QR generated for attendance');
+    }
+    function clearQR(){
+      const qrWrap = document.getElementById('qr-canvas');
+      qrWrap.innerHTML = 'Generate QR to display here';
+      qrWrap.style.color = '#888';
+      qrInstance = null;
+      notify('QR cleared');
+    }
+    function openAdmissionModal(){ document.getElementById('admission-modal').classList.add('open'); }
+    function closeAdmissionModal(){ document.getElementById('admission-modal').classList.remove('open'); }
+    function syncApplyFee(){
+      const course = document.getElementById('apply-course').value;
+      document.getElementById('apply-fee').value = courseFeeMap[course] || 'Contact admission office';
+    }
+    function submitAdmissionApplication(){
+      const name = document.getElementById('apply-name').value.trim();
+      const phone = document.getElementById('apply-phone').value.trim();
+      const email = document.getElementById('apply-email').value.trim();
+      const course = document.getElementById('apply-course').value;
+      const mode = document.getElementById('apply-mode').value;
+      const note = document.getElementById('apply-note').value.trim();
+      if(!name || !phone || !email || !course || !mode){
+        alert('Please fill all required admission fields');
+        return;
+      }
+      if(!isValidPhone(phone)){ alert('Enter valid 10-digit phone number'); return; }
+      if(!isValidEmail(email)){ alert('Enter valid email address'); return; }
+
+      enquiries.push({name, phone, email, course, mode, createdAt: new Date().toLocaleString()});
+      updateEnquiryTable();
+      closeAdmissionModal();
+      notify(`Admission application submitted: ${name} (${course})`);
+      alert(`Application submitted successfully.\nCourse: ${course}\nFee: ${courseFeeMap[course] || 'Contact office'}`);
+
+      if(note){
+        notify(`Applicant note: ${note.slice(0,35)}${note.length > 35 ? '...' : ''}`);
+      }
+      ['apply-name','apply-phone','apply-email','apply-course','apply-mode','apply-note','apply-fee'].forEach(id=>{
+        const el = document.getElementById(id);
+        if(el) el.value = '';
+      });
+    }
+    function showCourseDetails(){
+      const feeCard = document.querySelector('.fees-card');
+      if(feeCard){
+        feeCard.scrollIntoView({behavior:'smooth', block:'center'});
+        feeCard.animate(
+          [
+            {transform:'scale(1)', boxShadow:'0 0 0 rgba(226,193,101,0)'},
+            {transform:'scale(1.02)', boxShadow:'0 0 24px rgba(226,193,101,.55)'},
+            {transform:'scale(1)', boxShadow:'0 0 0 rgba(226,193,101,0)'}
+          ],
+          {duration:900, easing:'ease-out'}
+        );
+      }
+      notify('Course fee details opened');
+    }
+
+    function generateEnquiryQR(){
+      const name = document.getElementById('enq-name').value.trim();
+      const phone = document.getElementById('enq-phone').value.trim();
+      const email = document.getElementById('enq-email').value.trim();
+      const course = document.getElementById('enq-course').value;
+      const mode = document.getElementById('enq-mode').value;
+      if(!name || !phone || !email || !course || !mode){
+        alert('Please complete enquiry fields first');
+        return;
+      }
+      if(!isValidPhone(phone)){ alert('Enter valid 10-digit phone number'); return; }
+      if(!isValidEmail(email)){ alert('Enter valid email address'); return; }
+      const payload = `GMU.ENQUIRY|Name:${name}|Phone:${phone}|Email:${email}|Course:${course}|Mode:${mode}|Time:${new Date().toISOString()}`;
+      renderQR(payload);
+      notify('Enquiry QR generated');
+    }
+
+    function submitEnquiry(){
+      const name = document.getElementById('enq-name').value.trim();
+      const phone = document.getElementById('enq-phone').value.trim();
+      const email = document.getElementById('enq-email').value.trim();
+      const course = document.getElementById('enq-course').value;
+      const mode = document.getElementById('enq-mode').value;
+      if(!name || !phone || !email || !course || !mode){
+        alert('Please complete all enquiry details');
+        return;
+      }
+      if(!isValidPhone(phone)){ alert('Enter valid 10-digit phone number'); return; }
+      if(!isValidEmail(email)){ alert('Enter valid email address'); return; }
+      enquiries.push({name, phone, email, course, mode, createdAt: new Date().toLocaleString()});
+      updateEnquiryTable();
+      notify(`Enquiry saved: ${name} (${course})`);
+      document.getElementById('enq-name').value = '';
+      document.getElementById('enq-phone').value = '';
+      document.getElementById('enq-email').value = '';
+      document.getElementById('enq-course').value = '';
+      document.getElementById('enq-mode').value = '';
+    }
+    function updateEnquiryTable(){
+      const tbody = document.querySelector('#enquiry-table tbody');
+      tbody.innerHTML = enquiries.map(e=>`<tr><td>${e.name}</td><td>${e.course}</td><td>${e.mode}</td><td>${e.createdAt}</td></tr>`).join('');
+    }
+    function isValidPhone(phone){ return /^[6-9]\d{9}$/.test(phone); }
+    function isValidEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email); }
+    function downloadQR(){
+      const qrWrap = document.getElementById('qr-canvas');
+      const img = qrWrap.querySelector('img');
+      const canvas = qrWrap.querySelector('canvas');
+      let dataUrl = '';
+      if(img) dataUrl = img.src;
+      if(canvas) dataUrl = canvas.toDataURL('image/png');
+      if(!dataUrl){ alert('Generate a QR first'); return; }
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `gmu-qr-${Date.now()}.png`;
+      a.click();
+      notify('QR downloaded');
+    }
+    function toggleDarkMode(){
+      document.body.classList.toggle('dark-mode');
+      notify(document.body.classList.contains('dark-mode') ? 'Dark mode enabled' : 'Light mode enabled');
+    }
+
+    function openAuthModal(){ document.getElementById('auth-modal').classList.add('open'); }
+    function closeAuthModal(){ document.getElementById('auth-modal').classList.remove('open'); }
+    async function registerUser(){
+      const name = document.getElementById('auth-name').value.trim();
+      const email = document.getElementById('auth-email').value.trim().toLowerCase();
+      const password = document.getElementById('auth-password').value;
+      if(!name || !email || !password){ alert('Enter name, email, and password'); return; }
+      if(!isValidEmail(email)){ alert('Enter valid email address'); return; }
+      if(password.length < 6){ alert('Password must be at least 6 characters'); return; }
+      try{
+        const res = await fetch(`${API_BASE}/register`, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({name, email, password})
+        });
+        const data = await res.json();
+        if(!res.ok){ alert(data.message || 'Registration failed'); return; }
+        notify(`Registered successfully: ${name}`);
+        alert('Registration successful. Please login now.');
+      }catch(err){
+        alert('Cannot connect to auth server. Run: npm start');
+      }
+    }
+    async function loginUser(){
+      const email = document.getElementById('auth-email').value.trim().toLowerCase();
+      const password = document.getElementById('auth-password').value;
+      if(!email || !password){ alert('Enter email and password'); return; }
+      try{
+        const res = await fetch(`${API_BASE}/login`, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({email, password})
+        });
+        const data = await res.json();
+        if(!res.ok){ alert(data.message || 'Login failed'); return; }
+        currentUser = data.user;
+        localStorage.setItem('spems_current_user', JSON.stringify(currentUser));
+        updateAuthUI();
+        closeAuthModal();
+        notify(`Welcome, ${currentUser.name}`);
+      }catch(err){
+        alert('Cannot connect to auth server. Run: npm start');
+      }
+    }
+    function logoutUser(){
+      currentUser = null;
+      localStorage.removeItem('spems_current_user');
+      updateAuthUI();
+      notify('Logged out');
+    }
+    function updateAuthUI(){
+      const loginBtn = document.getElementById('login-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+      if(currentUser){
+        loginBtn.textContent = `Hi, ${currentUser.name.split(' ')[0]}`;
+        loginBtn.classList.remove('pulse');
+        loginBtn.onclick = function(){ return false; };
+        logoutBtn.style.display = 'inline-block';
+      }else{
+        loginBtn.textContent = 'Login';
+        loginBtn.classList.add('pulse');
+        loginBtn.onclick = function(){ openAuthModal(); return false; };
+        logoutBtn.style.display = 'none';
+      }
+    }
+    function hydrateAuthSession(){
+      const saved = localStorage.getItem('spems_current_user');
+      if(saved){
+        try{ currentUser = JSON.parse(saved); }catch(e){ currentUser = null; }
+      }
+      updateAuthUI();
+    }
+
+    function openModal(type){
+      document.getElementById('modal').classList.add('open');
+      document.getElementById('modal-title').textContent = type === 'create-event'? 'Create Event' : 'Modal';
+    }
+    function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+    function createEvent(){
+      const name = document.getElementById('event-name').value;
+      const date = document.getElementById('event-date').value;
+      if(!name || !date){ alert('Please enter name & date'); return; }
+      events.push({name,date,attendees:0}); updateEventsTable(); closeModal(); notify('Event created: ' + name);
+    }
+
+    function updateEventsTable(){
+      const tbody = document.querySelector('#events-table tbody');
+      tbody.innerHTML = events.map((e,i)=>`<tr><td>${e.name}</td><td>${e.date}</td><td>${e.attendees}</td><td><button onclick="verifyAttendance(${i})" class='btn btn-primary' style='padding:6px 8px'>Verify</button></td></tr>`).join('');
+      updateStudentView();
+    }
+    function verifyAttendance(i){ events[i].attendees++; updateEventsTable(); }
+
+    function generateReport(){
+      const total = events.length; const participants = events.reduce((s,e)=>s+e.attendees,0);
+      document.getElementById('report-output').innerHTML = `<div class='card'><strong>Report</strong><p class='muted'>Total Events: ${total}<br>Total Participants: ${participants}</p></div>`;
+      notify('Report generated');
+    }
+
+    function addLog(){ const entry = prompt('Enter log entry'); if(!entry) return; const hash = sha256b64(entry + Date.now()); logs.push({entry,hash}); updateLogsTable(); }
+    function updateLogsTable(){ const tbody = document.querySelector('#logs-table tbody'); tbody.innerHTML = logs.map(l=>`<tr><td>${l.entry}</td><td style='font-family:monospace'>${l.hash}</td></tr>`).join(''); }
+
+    // tiny sha-like (not real crypto) btoa of string hashed
+    function sha256b64(str){ // small pseudo-hash for UI
+      try{ return btoa(unescape(encodeURIComponent(str))).slice(0,24); } catch(e){ return btoa(str).slice(0,24); }
+    }
+
+    // notifications list
+    function notify(text){
+      const ul = document.getElementById('notifications');
+      const li = document.createElement('li');
+      li.textContent = text;
+      ul.prepend(li);
+      while(ul.children.length > 8) ul.removeChild(ul.lastChild);
+      setTimeout(()=>{ if(li) li.style.opacity='0.55'; },3600);
+    }
+
+    function setupUXEnhancements(){
+      const topBtn = document.querySelector('.floating-top');
+      const handleScroll = ()=>{
+        if(!topBtn) return;
+        topBtn.classList.toggle('show', window.scrollY > 220);
+      };
+      window.addEventListener('scroll', handleScroll);
+      handleScroll();
+    }
+
+    // rotating AI insights
+    setInterval(()=>{
+      const insights = ["Try a sports session!","Join a technical club!","Volunteer for NSS!","Attend workshops to boost your score!"];
+      document.getElementById('insights-text').textContent = insights[Math.floor(Math.random()*insights.length)];
+    },4500);
+
+    function setupRevealAnimations(){
+      const cards = document.querySelectorAll('.reveal');
+      cards.forEach((card, index)=>{
+        card.style.transitionDelay = `${Math.min(index * 70, 560)}ms`;
+      });
+      const observer = new IntersectionObserver((entries)=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){
+            entry.target.classList.add('in-view');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {threshold: 0.12});
+      cards.forEach(c=>observer.observe(c));
+    }
+
+    // initial
+    updateStudentView();
+    updateEnquiryTable();
+    hydrateFeatureState();
+    setupRevealAnimations();
+    hydrateAuthSession();
+    setupUXEnhancements();
+    showRole('student');
+
+  </script>
+</body>
+</html>
